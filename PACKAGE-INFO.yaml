@@ -1,6 +1,6 @@
-Package : ignition-conection
+Package : gazebo-conection
 Version : 000-linux-x86_64
 Maintainers : N/A
 Description : N/A
-Repository : https://github.com/ignitionrobotics/ign-omni
+Repository : https://github.com/gazebosim/gz-omni
 Branch : main

@@ -1,0 +1,21 @@
+<project toolsVersion="5.0">
+  <import path="../_build/target-deps/omni_connect_sdk/$config/dev/deps/all-deps.packman.xml">
+    <filter include="premake"/>
+    <filter include="python"/>
+    <filter include="usd_$config"/>
+    <filter include="carb_sdk_plugins"/>
+    <filter include="omni_usd_resolver"/>
+    <filter include="omni_client_library"/>
+    <filter include="omni_asset_validator"/>
+    <filter include="omni_transcoding"/>
+  </import>
+
+  <dependency name="premake" linkPath="../_build/host-deps/premake" />
+  <dependency name="python" linkPath="../_build/target-deps/python" />
+  <dependency name="usd_$config" linkPath="../_build/target-deps/usd/$config" />
+  <dependency name="carb_sdk_plugins" linkPath="../_build/target-deps/carb_sdk_plugins" />
+  <dependency name="omni_usd_resolver" linkPath="../_build/target-deps/omni_usd_resolver" />
+  <dependency name="omni_client_library" linkPath="../_build/target-deps/omni_client_library" />
+  <dependency name="omni_asset_validator" linkPath="../_build/target-deps/omni_asset_validator" />
+  <dependency name="omni_transcoding" linkPath="../_build/target-deps/omni_transcoding/$config" />
+</project>

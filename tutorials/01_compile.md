@@ -1,6 +1,6 @@
 # How to compile it
 
-## Install Ignition
+## Install Gazebo
 
 ```bash
 sudo apt update
@@ -11,35 +11,35 @@ sudo apt-get update
 sudo apt-get install python3-vcstool python3-colcon-common-extensions
 sudo apt-get install git libfreeimage-dev
 
-sudo apt-get install ignition-edifice
+sudo apt-get install gz-harmonic
 ```
 
-For more information, see https://ignitionrobotics.org/docs/edifice/install_ubuntu_src.
+For more information, see https://gazebosim.org/docs/harmonic/install_ubuntu_src.
 
-# Compile ignition-omniverse
+# Compile gz-omni
 
-We need to compile some Ignition packages from source with a specific flag due the `omni-client` library.
-To make this process simple we have created the [`ign-omni-meta` repository](https://github.com/ignitionrobotics/ign-omni-meta).
+We need to compile some Gazebo packages from source with a specific flag due the `omni-client` library.
+To make this process simple we have created the [`gz-omni-meta` repository](https://github.com/gazebosim/gz-omni-meta).
 
 To compile this libraries you should run:
 
 ```bash
-mkdir -p ~/ign-omni/src
-cd ~/ign-omni/src
-git clone https://github.com/ignitionrobotics/ign-omni-meta
-vcs import . < ign-omni-meta/repos.yaml
+mkdir -p ~/gz-omni/src
+cd ~/gz-omni/src
+git clone https://github.com/gazebosim/gz-omni-meta
+vcs import . < gz-omni-meta/repos.yaml
 cd protobuf
-git -C . apply ../ign-omni-meta/protobuf-cmake.patch
-cd ~/ign-omni
+git -C . apply ../gz-omni-meta/protobuf-cmake.patch
+cd ~/gz-omni
 colcon build --merge-install --event-handlers console_direct+ --packages-select protobuf
-cp src/ign-omni-meta/colcon.meta .
-colcon build --merge-install --event-handlers console_direct+ --packages-up-to ignition-omniverse1
+cp src/gz-omni-meta/colcon.meta .
+colcon build --merge-install --event-handlers console_direct+ --packages-up-to gazebo-omniverse1
 ```
 
 You can ignore the following message:
 
 ```bash
-WARNING:colcon.colcon_cmake.task.cmake.build:Could not run installation step for package 'ignition-omniverse1' because it has no 'install' target
+WARNING:colcon.colcon_cmake.task.cmake.build:Could not run installation step for package 'gazebo-omniverse1' because it has no 'install' target
 ```
 
-**Note: There will be 2 builds of ignition, the default build when ignition-edifice is compiled from source, and a special build with pre cxx11 abi compiled as part of ignition-omniverse.**
+**Note: There will be 2 builds of gazebo, the default build when gazebo-harmonic is compiled from source, and a special build with pre cxx11 abi compiled as part of gazebo-omniverse.**

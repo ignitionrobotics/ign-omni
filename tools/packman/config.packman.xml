@@ -1,4 +1,5 @@
 <config remotes="cloudfront">
-    <remote name="cloudfront" type="https" packageLocation="d4i3qtqj3r0z5.cloudfront.net/${name}@${version}" />
-    <remote name="cloudfront_upload" type="s3" packageLocation="packages-for-cloudfront" />
+    <remote2 name="cloudfront">
+        <transport actions="download" protocol="https" packageLocation="d4i3qtqj3r0z5.cloudfront.net/${name}@${version}" />
+    </remote2>
 </config>

@@ -1,10 +1,10 @@
-# Articulated arm connection from Isaac Sim to Ignition
+# Articulated arm connection from Isaac Sim to gz
 
-In this tutorial we well explain how to use the connector from Issac Sim to Ignition
+In this tutorial we well explain how to use the connector from Issac Sim to gz
 
 ## Prerequisites
  - sdformat with USD support (see the [sdformat installation instructions](http://sdformat.org/tutorials?tut=install))
- - Ignition fuel tools cli command (see the [ign fuel tools installation instructions](https://ignitionrobotics.org/api/fuel_tools/7.0/install.html))
+ - gz fuel tools cli command (see the [ign fuel tools installation instructions](https://gzrobotics.org/api/fuel_tools/7.0/install.html))
  - ign-omni Connector (see the [compile instructions](01_compile.md))
  - Omniverse Issac Sim
  - ros_ign_bridge
@@ -25,7 +25,7 @@ Positionals:
 Options:
   -h,--help                   Print this help message and exit
   --help-all                  Show all help
-  --version  
+  --version
 ```
 
  - Convert the Panda Franka Emika robot to USD. Create the following file `panda.sdf`:
@@ -46,21 +46,21 @@ Options:
     </scene>
 
     <plugin
-      filename="ignition-gazebo-physics-system"
-      name="ignition::gazebo::systems::Physics">
+      filename="gz-gazebo-physics-system"
+      name="gz::gazebo::systems::Physics">
     </plugin>
     <plugin
-      filename="ignition-gazebo-sensors-system"
-      name="ignition::gazebo::systems::Sensors">
+      filename="gz-gazebo-sensors-system"
+      name="gz::gazebo::systems::Sensors">
       <render_engine>ogre2</render_engine>
     </plugin>
     <plugin
-      filename="ignition-gazebo-user-commands-system"
-      name="ignition::gazebo::systems::UserCommands">
+      filename="gz-gazebo-user-commands-system"
+      name="gz::gazebo::systems::UserCommands">
     </plugin>
     <plugin
-      filename="ignition-gazebo-scene-broadcaster-system"
-      name="ignition::gazebo::systems::SceneBroadcaster">
+      filename="gz-gazebo-scene-broadcaster-system"
+      name="gz::gazebo::systems::SceneBroadcaster">
     </plugin>
 
     <light type="directional" name="sun">
@@ -79,7 +79,7 @@ Options:
     <include>
       <name>panda</name>
       <pose>0 0 0 0 0 0</pose>
-      <uri>https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/Panda with Ignition position controller model</uri>
+      <uri>https://fuel.gzrobotics.org/1.0/OpenRobotics/models/Panda with gz position controller model</uri>
     </include>
     <model name="ground_plane">
       <static>true</static>
@@ -113,7 +113,7 @@ Options:
 
  - Download the panda model from fuel:
 ```bash
-ign fuel download --url  "https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/Panda with Ignition position controller model"
+ign fuel download --url  "https://fuel.gzrobotics.org/1.0/OpenRobotics/models/Panda with gz position controller model"
 ```
 
  - Run the converter:
@@ -121,7 +121,7 @@ ign fuel download --url  "https://fuel.ignitionrobotics.org/1.0/OpenRobotics/mod
 sdf2usd /panda.sdf panda.usd
 ```
 
- - Copy the file in this path `omniverse://localhost/Users/ignition/panda.usd`:
+ - Copy the file in this path `omniverse://localhost/Users/gz/panda.usd`:
 ![](live_sync.gif)
 
  - Load the model in Issac Sim and activate the `live sync`
@@ -132,7 +132,7 @@ sdf2usd /panda.sdf panda.usd
    - Add ROS joint state
       - Configure *articulationPrim* to `/fuel/panda`
 
- - Launch the simulation in Ignition Gazebo:
+ - Launch the simulation in gz Gazebo:
 ```bash
 ign gazebo panda.sdf -v 4 -r
 ```
@@ -141,12 +141,12 @@ ign gazebo panda.sdf -v 4 -r
 ```bash
 source ~/ign-omni/install/setup.bash
 cd ~/ign-omni/src/ign-omni
-bash run_ignition_omni.sh -p omniverse://localhost/Users/ignition/panda.usd -w fuel --pose ignition
+bash run_gz_omni.sh -p omniverse://localhost/Users/gz/panda.usd -w fuel --pose gz
 ```
 
- - Right now Issac Sim does not provide the joint angle, but this data is provided in ROS. You should launch a ROS -> Ignition bridge:
+ - Right now Issac Sim does not provide the joint angle, but this data is provided in ROS. You should launch a ROS -> gz bridge:
 ```bash
-rosrun ros_ign_bridge parameter_bridge /joint_states@sensor_msgs/JointState]ignition.msgs.Model
+rosrun ros_ign_bridge parameter_bridge /joint_states@sensor_msgs/JointState]gz.msgs.Model
 ```
 
  - Then you can move the robot. There is a workspace available here `.local/share/ov/pkg/isaac_sim-2021.2.1/ros_workspace/` that you need to compile it and run:
