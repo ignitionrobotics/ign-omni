@@ -1,0 +1,24 @@
+[app]
+name = "connect-samples"
+version = "%APP_VERSION%"
+
+["omni.connect.core".client]
+name = "HelloWorld"
+version = "${app_version}"
+
+[plugins."carb.scripting-python.plugin"]
+pythonHome = "python-runtime"
+
+[log]
+
+# most channels should warn or error only
+channels."*" = "Warning"
+
+# mute warnings on specific channels with known issues
+channels."carb" = "Error"
+
+# make sure our own logs are in stdout
+outputStreamLevel = "Info"
+channels."HelloWorld" = "Info"
+channels."LiveSessionSample" = "Info"
+channels."Py*" = "Info"

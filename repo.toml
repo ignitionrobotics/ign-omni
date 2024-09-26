@@ -1,0 +1,86 @@
+[repo]
+name = "connect-sample"
+import_optional_configs = [
+    "_build/target-deps/omni_connect_sdk/debug/dev/tools/repoman/connect-defaults.toml",
+    "_build/target-deps/omni_connect_sdk/release/dev/tools/repoman/connect-defaults.toml"
+]
+
+[repo.folders]
+version_file = "CHANGELOG.md"
+
+[repo_install_sdk]
+enabled = true
+usd = "pxr-23_11"
+python = "310"
+nucleus = "on"
+
+[repo_build]
+
+# add Connect SDK deps
+fetch.packman_target_files_to_pull."++" = [
+    "${root}/deps/connect-sdk-deps.packman.xml",  # Most Connectors should define this file
+]
+
+default_build_config = ["debug", "release"]
+
+# pre_build.commands happens after project generation, this is too late
+fetch.after_pull_commands = [
+    ["${root}/repo${shell_ext}", "version_header"],
+    # stages the sdk-runtime for the prebuild step
+    [
+        "$root/repo${shell_ext}",
+        "install_sdk",
+        "-c", "$config",
+        "--staging-dir", "_build",
+        "--install-dir", "_build/intermediate/sdk-runtime/$config",
+    ],
+]
+
+msbuild.sln_file = "Samples.sln"
+msbuild.vs_version = 'vs2019'
+docker.enabled = false
+telemetry.enabled = false
+
+fetch.generated_packman_file = "${root}/_build/${platform}/${config}/dev/deps/all-deps.packman.xml"
+
+post_build.commands = [
+    ["$root/repo${shell_ext}", "connect_client_config", "-c", "$config"],
+]
+
+[repo_connect_client_config]
+enabled = true
+app_version = "$root/CHANGELOG.md"
+
+[repo_version_header]
+enabled = true
+component = "Connect Samples"
+namespace = "OMNICONNECTSAMPLES"
+target_file = "source/common/include/Version.h"
+target_resource_file = "${root}/version.rc"
+
+[repo_test]
+default_config = "release"
+
+# Example of Python "pytest"
+[repo_test.suites.pytest]
+kind = "pytest"
+
+# Record test results to file. Provide a file path ending in .xml extension
+# to record a junit compatible report.
+log_file = "_testoutput/results.xml"
+
+# Specify extra paths to include in PYTHONPATH. Supports wildcards.
+# Note pythonpath is also supported for backwards compatibility.
+python_paths = [
+   "${root}/source/pyHelloWorld"
+]
+
+# Specify suite specific environment variables.
+module_path = "${root}/tests/test_all.py"
+
+env_vars = [
+#    [ "OMNI_BASE_URL", "" ],
+#    [ "OMNI_USER", "" ],
+#    [ "OMNI_PASS", "" ],
+]
+

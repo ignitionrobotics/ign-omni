@@ -1,4 +1,60 @@
-_build
-_compiler
-cross_compile
-__pycache__/
+# editor files
+*.swp
+/.vscode/
+*/.vs/
+
+# generated files
+_*/
+/packages/
+VERSION
+version.rc
+Version.h
+
+# byte-compiled python files
+*.py[cod]
+
+# packman package files
+*@*.7z
+*@*.zip
+
+# user files
+*.user
+user.repo.toml
+
+# binaries
+*.ico
+*.bmp
+*.png
+*.gif
+*.jpg
+*.jpeg
+*.tga
+*.psd
+*.raw
+*.exr
+*.hdr
+*.dds
+*.ktx
+*.spv
+*.dxbc
+*.dxil
+*.gltf
+*.glb
+*.fbx
+*.usd
+*.usda
+*.usdz
+*.obj
+*.mat
+/.lastformat
+
+# allow files in resources
+!/resources/
+!/resources/*
+!/resources/**/*
+
+# python logging file
+pyLogging.log
+
+# packman packaging file
+PACKAGE-DEPS.yaml

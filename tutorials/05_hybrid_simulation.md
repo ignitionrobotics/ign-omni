@@ -1,12 +1,12 @@
 # Hybrid simulation
 
-This demo explains how to use the hybrid simulation. The concept of Hybrid simulation is defined as: *A user can separate their simulation workload between Ignition
-and Isaac Sim, with both systems running in parallel. For example, sensors can be handled by Isaac Sim, with rendering handled by Ignition, or vice versa.*
+This demo explains how to use the hybrid simulation. The concept of Hybrid simulation is defined as: *A user can separate their simulation workload between gz
+and Isaac Sim, with both systems running in parallel. For example, sensors can be handled by Isaac Sim, with rendering handled by gz, or vice versa.*
 
 We can define more tangible examples, we can use some of the ROS frameworks such as the Nav stack or Moveit to use the ROS data from both simulators. For example:
 
- - Moveit: We can simulate in Ignition the joints of an articulated arm (sensing the data from the joints and sending commands to the joints) and in Isaac Sim we can simulate a camera attached to the robot or looking at the scene.
- - Nav stack: We can simulate in Ignition the diff drive controller and simulate all the sensors in Isaac Sim (Lidar, cameras, etc).
+ - Moveit: We can simulate in gz the joints of an articulated arm (sensing the data from the joints and sending commands to the joints) and in Isaac Sim we can simulate a camera attached to the robot or looking at the scene.
+ - Nav stack: We can simulate in gz the diff drive controller and simulate all the sensors in Isaac Sim (Lidar, cameras, etc).
 
 The possibilities are huge you just need to configure your on setup. In the following image is explained how the hybrid simulation works.
 
@@ -19,14 +19,14 @@ Once the connector is running we need to defined which data from sensor or actua
  - Isaac Sim can share the data in the ROS network using some the predefined ROS plugins
 ![](isaac_ros_plugins.png)
 
- - Ignition uses `ros_ign_bridge`, this package provides a network bridge which enables the exchange of messages between ROS 2 and Ignition Transport. You can follow this tutorial to learn more about [how to use ROS Ignition bridges](https://docs.ros.org/en/galactic/Tutorials/Simulators/Ignition/Setting-up-a-Robot-Simulation-Ignition.html)
+ - gz uses `ros_ign_bridge`, this package provides a network bridge which enables the exchange of messages between ROS 2 and gz Transport. You can follow this tutorial to learn more about [how to use ROS gz bridges](https://docs.ros.org/en/galactic/Tutorials/Simulators/gz/Setting-up-a-Robot-Simulation-gz.html)
 
 ## Demo
 
 In particular will follow this steps:
 
  - Launch a world containing a ROS 2-controlled robot.
- - Enable hybrid simulation, sharing the workload between Ignition and Isaac Sim
+ - Enable hybrid simulation, sharing the workload between gz and Isaac Sim
  - Control the robot from ROS 2
  - Visualize the data in the ROS network from both simulators in Rviz2
 
@@ -35,7 +35,7 @@ In particular will follow this steps:
  - [Turtebot4 Simulation](https://github.com/turtlebot/turtlebot4_simulator)
  - Omniverse Issac Sim
    - [ROS & ROS2 Bridge](https://docs.omniverse.nvidia.com/app_isaacsim/app_isaacsim/ext_omni_isaac_ros_bridge.html)
- - [How to use ROS Ignition bridges](https://docs.ros.org/en/galactic/Tutorials/Simulators/Ignition/Setting-up-a-Robot-Simulation-Ignition.html)
+ - [How to use ROS gz bridges](https://docs.ros.org/en/galactic/Tutorials/Simulators/gz/Setting-up-a-Robot-Simulation-gz.html)
    - ros_ign_bridge
      - ROS 2: `sudo apt-get install ros-galactic-ros-ign-bridge`
 
@@ -43,7 +43,7 @@ In particular will follow this steps:
 
 In this case we are going to simulate the Turtebot4 available in this [repository](https://github.com/turtlebot/turtlebot4_simulator).
 
-But first we are going to modify the lidar ros_ign_bridge bridge. Edit the file `~/turtlebot4_ws/src/turtlebot4_simulator/turtlebot4_ignition_bringup/launch/ros_ign_bridge.launch.py`. We should remap the `/scan` ROS 2 topic to `/scan_ignition`. The original file is:
+But first we are going to modify the lidar ros_ign_bridge bridge. Edit the file `~/turtlebot4_ws/src/turtlebot4_simulator/turtlebot4_gz_bringup/launch/ros_ign_bridge.launch.py`. We should remap the `/scan` ROS 2 topic to `/scan_gz`. The original file is:
 
 ```python
 remappings=[
@@ -61,7 +61,7 @@ remappings=[
     (['/world/', LaunchConfiguration('world'),
       '/model/', LaunchConfiguration('robot_name'),
       '/link/rplidar_link/sensor/rplidar/scan'],
-     '/scan_ignition')
+     '/scan_gz')
 ])
 ```
 
@@ -71,58 +71,58 @@ Now you should compile it. Follow the instructions in the [README.md](https://gi
 
 If you need to compile `ign-omni`, please review this [instructions](01_compile.md).
 
-**Note**: `ignition-omni` will be built under `src/ign-omni/_build`, this is because
+**Note**: `gz-omni` will be built under `src/ign-omni/_build`, this is because
 it uses a custom build system by NVidia which is hard coded to put output in that directory.
 
 In this case you need to source the special workspace that we have created
 with the `ign-omni-meta` repository.
 
-Create an empty file in Nucleus in the following directory `omniverse://localhost/Users/ignition/turtlebot4.usd`
+Create an empty file in Nucleus in the following directory `omniverse://localhost/Users/gz/turtlebot4.usd`
 
 ## Running the example:
 
 ### Run the ROS 2 simulation
 
-You should run the Turtlebot4 simulation in Ignition, we are going to set to true the `slam` option to be able to create a map and navigate in the scene and we are going to set `rviz` to true too, in this case to visualize all the data from the nav2 stack in Rviz2:
+You should run the Turtlebot4 simulation in gz, we are going to set to true the `slam` option to be able to create a map and navigate in the scene and we are going to set `rviz` to true too, in this case to visualize all the data from the nav2 stack in Rviz2:
 
 ```bash
 source ~/turtlebot4_ws/install/setup.bash
-ros2 launch turtlebot4_ignition_bringup ignition.launch.py slam:=sync nav2:=true rviz:=true
+ros2 launch turtlebot4_gz_bringup gz.launch.py slam:=sync nav2:=true rviz:=true
 ```
 
 ### Run the connector
 
-Once the simulation in Ignition is running we need to define some arguments to run the connector:
+Once the simulation in gz is running we need to define some arguments to run the connector:
 
 ```bash
-Ignition omniverse connector
-Usage: ./_build/linux-x86_64/debug/ignition-omniverse1 [OPTIONS]
+gz omniverse connector
+Usage: ./_build/linux-x86_64/debug/gz-omniverse1 [OPTIONS]
 
 Options:
   -h,--help                   Print this help message and exit
-  -p,--path TEXT REQUIRED     Location of the omniverse stage. e.g. "omniverse://localhost/Users/ignition/stage.usd"
-  -w,--world TEXT REQUIRED    Name of the ignition world
-  --pose ENUM:value in {ignition->0,isaacsim->1} OR {0,1} REQUIRED
+  -p,--path TEXT REQUIRED     Location of the omniverse stage. e.g. "omniverse://localhost/Users/gz/stage.usd"
+  -w,--world TEXT REQUIRED    Name of the gz world
+  --pose ENUM:value in {gz->0,isaacsim->1} OR {0,1} REQUIRED
                               Which simulator will handle the poses
-  -v,--verbose                
+  -v,--verbose
 ```
 
 In particular we need to define:
 
  - `-p,--path`: this is the file inside Omniverse, Isaac Sim and the connector are going to share it thanks to live sync mode. **This file must live in Omniverse**.
- - `-w,--world`: The name of the Ignition world
- - `--pose`: This option has two values: `ignition` or `isaacsim`. It defines how will handle the models pose and the joint states.
+ - `-w,--world`: The name of the gz world
+ - `--pose`: This option has two values: `gz` or `isaacsim`. It defines how will handle the models pose and the joint states.
 
 ```bash
 source ~/ign-omni/install/setup.bash
 cd ~/ign-omni/src/ign-omni
 export IGN_GAZEBO_RESOURCE_PATH=$IGN_GAZEBO_RESOURCE_PATH:`echo $HOME`/turtlebot4_ws/install/share/:`echo $HOME`/turtlebot4_ws/install/turtlebot4_description/share/:`echo $HOME`/turtlebot4_ws/install/irobot_create_description/share/
-bash run_ignition_omni.sh -p omniverse://localhost/Users/ignition/turtlebot4.usd -w depot -v --pose ignition
+bash run_gz_omni.sh -p omniverse://localhost/Users/gz/turtlebot4.usd -w depot -v --pose gz
 ```
 
 ### Run Issac Sim
 
-Launch `IssacSim`, load the file `omniverse://localhost/Users/ignition/turtlebot4.usd` and activate the `live sync`
+Launch `IssacSim`, load the file `omniverse://localhost/Users/gz/turtlebot4.usd` and activate the `live sync`
 
 ![](../live_sync.gif)
 
@@ -205,7 +205,7 @@ if __name__ == '__main__':
 
 **Note: With this script you can choose how is going to provide the data from the lidar**
   - If you define `/scan_isaac` the data used is provided by Isaac Sim.
-  - If you define `/scan_ignition` the data used is provided by Ignition Gazebo.
+  - If you define `/scan_gz` the data used is provided by gz Gazebo.
 
 Launch the node:
 
