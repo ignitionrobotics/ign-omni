@@ -93,8 +93,8 @@ int main(int argc, char* argv[])
     return result.Value();
   }();
 
-  omniUsdLiveSetModeForUrl(stageUrl.c_str(),
-                           OmniUsdLiveMode::eOmniUsdLiveModeEnabled);
+//  omniUsdLiveSetModeForUrl(stageUrl.c_str(),
+//                           OmniUsdLiveMode::eOmniUsdLiveModeEnabled);
 
   PrintConnectedUsername(stageUrl);
 
@@ -124,7 +124,8 @@ int main(int argc, char* argv[])
     lastUpdate = now;
 
     scene.Save();
-    omniUsdLiveProcess();
+   // omniUsdLiveProcess();
+    omniClientLiveProcess();
   }
 
   return 0;

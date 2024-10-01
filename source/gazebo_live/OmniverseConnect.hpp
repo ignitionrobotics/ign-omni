@@ -23,7 +23,7 @@
 #include <pxr/usd/usd/stage.h>
 
 #include <OmniClient.h>
-#include <OmniUsdLive.h>
+//#include <OmniClientLive.h>
 
 #include <string>
 

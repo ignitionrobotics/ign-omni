@@ -55,7 +55,7 @@ void PrintConnectedUsername(const std::string& stageUrl)
       }));
   {
     std::unique_lock<std::mutex> lk(gLogMutex);
-    ignmsg << "Connected username: " << userName << std::endl;
+    gzmsg << "Connected username: " << userName << std::endl;
   }
 }
 
@@ -74,7 +74,7 @@ static void clientStatCallback(void* userData, OmniClientResult result,
 
   if (result != OmniClientResult::eOmniClientResult_Ok)
   {
-    ignerr << "stage not found: " << *context->stageUrlPtr << std::endl;
+    gzerr << "stage not found: " << *context->stageUrlPtr << std::endl;
     exit(1);
   }
 }
@@ -90,7 +90,7 @@ static void clientStatSubscribeCallback(
   {
     case eOmniClientListEvent_Updated:
     {
-      ignmsg << "Updated - user: " << entry->modifiedBy
+      gzmsg << "Updated - user: " << entry->modifiedBy
              << " version: " << entry->version << std::endl;
 
       // Mark the last updated time
@@ -98,14 +98,14 @@ static void clientStatSubscribeCallback(
       break;
     }
     case eOmniClientListEvent_Created:
-      ignmsg << "Created: " << entry->createdBy << std::endl;
+      gzmsg << "Created: " << entry->createdBy << std::endl;
       break;
     case eOmniClientListEvent_Deleted:
-      ignmsg << "Deleted: " << entry->createdBy << std::endl;
+      gzmsg << "Deleted: " << entry->createdBy << std::endl;
       exit(1);
       break;
     case eOmniClientListEvent_Locked:
-      ignmsg << "Locked: " << entry->createdBy << std::endl;
+      gzmsg << "Locked: " << entry->createdBy << std::endl;
       break;
     default:
       break;
@@ -150,7 +150,7 @@ MaybeError<std::string, GenericError> CreateOmniverseModel(
       stage->SetMetadata(pxr::SdfFieldKeys->Comment,
                          "Created by gz-omniverse");
       stage->Save();
-      ignmsg << "Created omniverse stage at [" << normalizedStageUrl << "]"
+      gzmsg << "Created omniverse stage at [" << normalizedStageUrl << "]"
              << std::endl;
     }
   }
@@ -197,19 +197,19 @@ bool StartOmniverse()
         {
           case eOmniClientLogLevel_Debug:
           case eOmniClientLogLevel_Verbose:
-            igndbg << "(" << component << ") " << message << std::endl;
+            gzdbg << "(" << component << ") " << message << std::endl;
             break;
           case eOmniClientLogLevel_Info:
-            ignmsg << "(" << component << ") " << message << std::endl;
+            gzmsg << "(" << component << ") " << message << std::endl;
             break;
           case eOmniClientLogLevel_Warning:
-            ignwarn << "(" << component << ") " << message << std::endl;
+            gzwarn << "(" << component << ") " << message << std::endl;
             break;
           case eOmniClientLogLevel_Error:
-            ignerr << "(" << component << ") " << message << std::endl;
+            gzerr << "(" << component << ") " << message << std::endl;
             break;
           default:
-            igndbg << "(" << component << ") " << message << std::endl;
+            gzdbg << "(" << component << ") " << message << std::endl;
         }
       });
 
@@ -230,20 +230,20 @@ bool StartOmniverse()
          OmniClientConnectionStatus status) noexcept
       {
         std::unique_lock<std::mutex> lk(gLogMutex);
-        ignmsg << "Connection Status: "
+        gzmsg << "Connection Status: "
                << omniClientGetConnectionStatusString(status) << " [" << url
                << "]" << std::endl;
         if (status == eOmniClientConnectionStatus_ConnectError)
         {
           // We shouldn't just exit here - we should clean up a bit, but we're
           // going to do it anyway
-          ignerr << "Failed connection, exiting." << std::endl;
+          gzerr << "Failed connection, exiting." << std::endl;
           exit(-1);
         }
       });
 
   // Enable live updates
-  omniUsdLiveSetDefaultEnabled(true);
+  // omniUsdLiveSetDefaultEnabled(true);
 
   return true;
 }
