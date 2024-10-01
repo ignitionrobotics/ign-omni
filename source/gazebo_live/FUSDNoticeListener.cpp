@@ -14,6 +14,9 @@
  * limitations under the License.
  *
  */
+
+#include <gz/msgs/entity_factory.pb.h>
+
 #include "FUSDNoticeListener.hpp"
 
 #include "GetOp.hpp"

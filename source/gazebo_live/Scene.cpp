@@ -15,6 +15,8 @@
  *
  */
 
+#include <gz/msgs/uint32_v.pb.h>
+
 #include "Scene.hpp"
 
 #include "FUSDLayerNoticeListener.hpp"

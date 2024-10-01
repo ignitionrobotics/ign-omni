@@ -25,6 +25,7 @@
 #include <gz/common/Util.hh>
 
 #include <pxr/usd/usdGeom/xformCommonAPI.h>
+#include <pxr/usd/usdGeom/primvarsAPI.h>
 
 namespace gz::omniverse
 {
@@ -213,7 +214,7 @@ pxr::UsdGeomMesh UpdateMesh(const gz::msgs::MeshGeom &_meshMsg,
     usdMesh.CreateFaceVertexIndicesAttr().Set(faceVertexIndices);
     usdMesh.CreateFaceVertexCountsAttr().Set(faceVertexCounts);
 
-    auto coordinates = usdMesh.CreatePrimvar(
+    auto coordinates = pxr::UsdGeomPrimvarsAPI(usdMesh).CreatePrimvar(
         pxr::TfToken("st"), pxr::SdfValueTypeNames->Float2Array,
         pxr::UsdGeomTokens->vertex);
     coordinates.Set(uvs);
