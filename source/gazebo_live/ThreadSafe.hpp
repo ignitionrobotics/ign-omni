@@ -43,8 +43,8 @@ class ThreadSafe
     T& operator->();
 
    private:
-    MutexT& m;
     T& data;
+    MutexT& m;
   };
 
   /// \brief Takes ownership of the data.

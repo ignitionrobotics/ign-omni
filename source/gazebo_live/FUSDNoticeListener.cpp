@@ -109,7 +109,7 @@ public:
 };
 
 void FUSDNoticeListener::Implementation::ParseCube(
-  const pxr::UsdPrim &_prim, sdf::Link &_link)
+  const pxr::UsdPrim &/*_prim*/, sdf::Link &/*_link*/)
 {
   // double size;
   // auto variant_cylinder = pxr::UsdGeomCube(_prim);
@@ -117,7 +117,7 @@ void FUSDNoticeListener::Implementation::ParseCube(
 }
 
 void FUSDNoticeListener::Implementation::ParseCylinder(
-  const pxr::UsdPrim &_prim, sdf::Link &_link)
+  const pxr::UsdPrim &/*_prim*/, sdf::Link &/*_link*/)
 {
   // auto variant_cylinder = pxr::UsdGeomCylinder(_prim);
   // double radius;
@@ -245,7 +245,7 @@ void FUSDNoticeListener::Handle(
     	req.set_name(modelUSD.GetPath().GetName());
     	req.set_allow_renaming(false);
 
-      igndbg << "root.ToElement()->ToString("") "
+      gzdbg << "root.ToElement()->ToString("") "
              << root.ToElement()->ToString("") << '\n';
 
       gz::msgs::Boolean rep;
@@ -258,12 +258,12 @@ void FUSDNoticeListener::Handle(
       {
     		if (rep.data())
     		{
-    			igndbg << "Model was inserted [" << modelUSD.GetPath().GetName()
+    			gzdbg << "Model was inserted [" << modelUSD.GetPath().GetName()
                     << "]" << '\n';
     		}
     		else
     		{
-    			igndbg << "Error model was not inserted" << '\n';
+    			gzdbg << "Error model was not inserted" << '\n';
     		}
     	}
     }
@@ -311,7 +311,7 @@ void FUSDNoticeListener::Handle(
     {
       if (std::string(objectsChanged.GetText()) == "/")
         continue;
-      igndbg << "path " << objectsChanged.GetText() << std::endl;
+      gzdbg << "path " << objectsChanged.GetText() << std::endl;
       auto modelUSD = stage->GetPrimAtPath(objectsChanged.GetParentPath());
       auto property = modelUSD.GetPropertyAtPath(objectsChanged);
       std::string strProperty = property.GetBaseName().GetText();
@@ -338,9 +338,9 @@ void FUSDNoticeListener::Handle(
           auto visualOp = GetOp(visualXform);
           transforms.position += visualOp.position;
           gz::math::Quaterniond qX, qY, qZ;
-          gz::math::Angle angleX(IGN_DTOR(visualOp.rotXYZ[0]));
-          gz::math::Angle angleY(IGN_DTOR(visualOp.rotXYZ[1]));
-          gz::math::Angle angleZ(IGN_DTOR(visualOp.rotXYZ[2]));
+          gz::math::Angle angleX(GZ_DTOR(visualOp.rotXYZ[0]));
+          gz::math::Angle angleY(GZ_DTOR(visualOp.rotXYZ[1]));
+          gz::math::Angle angleZ(GZ_DTOR(visualOp.rotXYZ[2]));
           qX = gz::math::Quaterniond(angleX.Normalized().Radian(), 0, 0);
           qY = gz::math::Quaterniond(0, angleY.Normalized().Radian(), 0);
           qZ = gz::math::Quaterniond(0, 0, angleZ.Normalized().Radian());
@@ -362,9 +362,9 @@ void FUSDNoticeListener::Handle(
             auto linkOp = GetOp(linkXform);
             transforms.position += linkOp.position;
             gz::math::Quaterniond qX, qY, qZ;
-            gz::math::Angle angleX(IGN_DTOR(linkOp.rotXYZ[0]));
-            gz::math::Angle angleY(IGN_DTOR(linkOp.rotXYZ[1]));
-            gz::math::Angle angleZ(IGN_DTOR(linkOp.rotXYZ[2]));
+            gz::math::Angle angleX(GZ_DTOR(linkOp.rotXYZ[0]));
+            gz::math::Angle angleY(GZ_DTOR(linkOp.rotXYZ[1]));
+            gz::math::Angle angleZ(GZ_DTOR(linkOp.rotXYZ[2]));
             qX = gz::math::Quaterniond(angleX.Normalized().Radian(), 0, 0);
             qY = gz::math::Quaterniond(0, angleY.Normalized().Radian(), 0);
             qZ = gz::math::Quaterniond(0, 0, angleZ.Normalized().Radian());
@@ -387,9 +387,9 @@ void FUSDNoticeListener::Handle(
             auto modelOp = GetOp(modelXform);
             transforms.position += modelOp.position;
             gz::math::Quaterniond qX, qY, qZ;
-            gz::math::Angle angleX(IGN_DTOR(modelOp.rotXYZ[0]));
-            gz::math::Angle angleY(IGN_DTOR(modelOp.rotXYZ[1]));
-            gz::math::Angle angleZ(IGN_DTOR(modelOp.rotXYZ[2]));
+            gz::math::Angle angleX(GZ_DTOR(modelOp.rotXYZ[0]));
+            gz::math::Angle angleY(GZ_DTOR(modelOp.rotXYZ[1]));
+            gz::math::Angle angleZ(GZ_DTOR(modelOp.rotXYZ[2]));
             qX = gz::math::Quaterniond(angleX.Normalized().Radian(), 0, 0);
             qY = gz::math::Quaterniond(0, angleY.Normalized().Radian(), 0);
             qZ = gz::math::Quaterniond(0, 0, angleZ.Normalized().Radian());

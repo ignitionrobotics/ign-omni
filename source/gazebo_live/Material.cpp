@@ -67,7 +67,7 @@ std::string checkURI(const std::string _fullPath)
       home, ".gz", "fuel", server, owner, type, modelName, modelVersion);
     systemPaths->AddFilePaths(fullPath);
 
-    for (int i = 7; i < tokens.size(); i++)
+    for (unsigned int i = 7; i < tokens.size(); i++)
     {
       fullPath = gz::common::joinPaths(
         fullPath, gz::common::lowercase(tokens[i]));

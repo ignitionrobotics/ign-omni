@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 
   std::string ignGazeboResourcePath;
   auto systemPaths = gz::common::systemPaths();
-  gz::common::env("IGN_GAZEBO_RESOURCE_PATH", ignGazeboResourcePath);
+  gz::common::env("GZ_GAZEBO_RESOURCE_PATH", ignGazeboResourcePath);
   for (const auto& resourcePath :
        gz::common::Split(ignGazeboResourcePath, ':'))
   {

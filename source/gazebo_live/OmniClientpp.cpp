@@ -47,7 +47,7 @@ OmniverseSync::MaybeError<OmniClientListEntry> OmniverseSync::Stat(
       [](void* userData, OmniClientResult clientResult,
          const OmniClientListEntry* entry) noexcept
       {
-        auto* ret =
+        auto ret =
             reinterpret_cast<MaybeError<OmniClientListEntry>*>(userData);
         if (!CheckClientResult(clientResult))
         {

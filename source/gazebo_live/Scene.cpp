@@ -92,7 +92,7 @@ Scene::Scene(
   Simulator _simulatorPoses)
     : dataPtr(gz::utils::MakeUniqueImpl<Implementation>())
 {
-  ignmsg << "Opened stage [" << _stageUrl << "]" << std::endl;
+  gzmsg << "Opened stage [" << _stageUrl << "]" << std::endl;
   this->dataPtr->worldName = _worldName;
   this->dataPtr->stage = std::make_shared<ThreadSafe<pxr::UsdStageRefPtr>>(
       pxr::UsdStage::Open(_stageUrl));
@@ -157,7 +157,7 @@ void Scene::Implementation::ResetScale(const pxr::UsdGeomXformCommonAPI &_prim)
 bool Scene::Implementation::UpdateVisual(const gz::msgs::Visual &_visual,
                                          const std::string &_usdLinkPath)
 {
-  auto stage = this->stage->Lock();
+  auto stagePtr = this->stage->Lock();
 
   std::string visualName = _visual.name();
   std::string suffix = "_visual";
@@ -168,12 +168,12 @@ bool Scene::Implementation::UpdateVisual(const gz::msgs::Visual &_visual,
   }
 
   std::string usdVisualPath = _usdLinkPath + "/" + _visual.name() + suffix;
-  auto prim = stage->GetPrimAtPath(pxr::SdfPath(usdVisualPath));
+  auto prim = stagePtr->GetPrimAtPath(pxr::SdfPath(usdVisualPath));
   if (prim)
     return true;
 
   auto usdVisualXform =
-      pxr::UsdGeomXform::Define(*stage, pxr::SdfPath(usdVisualPath));
+      pxr::UsdGeomXform::Define(*stagePtr, pxr::SdfPath(usdVisualPath));
   pxr::UsdGeomXformCommonAPI xformApi(usdVisualXform);
   if (_visual.has_scale())
   {
@@ -202,7 +202,7 @@ bool Scene::Implementation::UpdateVisual(const gz::msgs::Visual &_visual,
     case gz::msgs::Geometry::BOX:
     {
       auto usdCube =
-          pxr::UsdGeomCube::Define(*stage, pxr::SdfPath(usdGeomPath));
+          pxr::UsdGeomCube::Define(*stagePtr, pxr::SdfPath(usdGeomPath));
       usdCube.CreateSizeAttr().Set(1.0);
       pxr::GfVec3f endPoint(0.5);
       pxr::VtArray<pxr::GfVec3f> extentBounds;
@@ -212,9 +212,9 @@ bool Scene::Implementation::UpdateVisual(const gz::msgs::Visual &_visual,
       pxr::UsdGeomXformCommonAPI cubeXformAPI(usdCube);
       cubeXformAPI.SetScale(pxr::GfVec3f(
           geom.box().size().x(), geom.box().size().y(), geom.box().size().z()));
-      if (!SetMaterial(usdCube, _visual, *stage, this->stageDirUrl))
+      if (!SetMaterial(usdCube, _visual, *stagePtr, this->stageDirUrl))
       {
-        ignwarn << "Failed to set material" << std::endl;
+        gzwarn << "Failed to set material" << std::endl;
       }
       break;
     }
@@ -223,7 +223,7 @@ bool Scene::Implementation::UpdateVisual(const gz::msgs::Visual &_visual,
     case gz::msgs::Geometry::CYLINDER:
     {
       auto usdCylinder =
-          pxr::UsdGeomCylinder::Define(*stage, pxr::SdfPath(usdGeomPath));
+          pxr::UsdGeomCylinder::Define(*stagePtr, pxr::SdfPath(usdGeomPath));
       double radius = geom.cylinder().radius();
       double length = geom.cylinder().length();
 
@@ -235,17 +235,17 @@ bool Scene::Implementation::UpdateVisual(const gz::msgs::Visual &_visual,
       extentBounds.push_back(-1.0 * endPoint);
       extentBounds.push_back(endPoint);
       usdCylinder.CreateExtentAttr().Set(extentBounds);
-      if (!SetMaterial(usdCylinder, _visual, *stage, this->stageDirUrl))
+      if (!SetMaterial(usdCylinder, _visual, *stagePtr, this->stageDirUrl))
 
       {
-        ignwarn << "Failed to set material" << std::endl;
+        gzwarn << "Failed to set material" << std::endl;
       }
       break;
     }
     case gz::msgs::Geometry::PLANE:
     {
       auto usdCube =
-          pxr::UsdGeomCube::Define(*stage, pxr::SdfPath(usdGeomPath));
+          pxr::UsdGeomCube::Define(*stagePtr, pxr::SdfPath(usdGeomPath));
       usdCube.CreateSizeAttr().Set(1.0);
       pxr::GfVec3f endPoint(0.5);
       pxr::VtArray<pxr::GfVec3f> extentBounds;
@@ -256,16 +256,16 @@ bool Scene::Implementation::UpdateVisual(const gz::msgs::Visual &_visual,
       pxr::UsdGeomXformCommonAPI cubeXformAPI(usdCube);
       cubeXformAPI.SetScale(
           pxr::GfVec3f(geom.plane().size().x(), geom.plane().size().y(), 0.0025));
-      if (!SetMaterial(usdCube, _visual, *stage, this->stageDirUrl))
+      if (!SetMaterial(usdCube, _visual, *stagePtr, this->stageDirUrl))
       {
-        ignwarn << "Failed to set material" << std::endl;
+        gzwarn << "Failed to set material" << std::endl;
       }
       break;
     }
     case gz::msgs::Geometry::ELLIPSOID:
     {
       auto usdEllipsoid =
-          pxr::UsdGeomSphere::Define(*stage, pxr::SdfPath(usdGeomPath));
+          pxr::UsdGeomSphere::Define(*stagePtr, pxr::SdfPath(usdGeomPath));
       const auto maxRadii =
           gz::math::Vector3d(geom.ellipsoid().radii().x(),
                                    geom.ellipsoid().radii().y(),
@@ -283,32 +283,32 @@ bool Scene::Implementation::UpdateVisual(const gz::msgs::Visual &_visual,
       extentBounds.push_back(pxr::GfVec3f{static_cast<float>(-maxRadii)});
       extentBounds.push_back(pxr::GfVec3f{static_cast<float>(maxRadii)});
       usdEllipsoid.CreateExtentAttr().Set(extentBounds);
-      if (!SetMaterial(usdEllipsoid, _visual, *stage, this->stageDirUrl))
+      if (!SetMaterial(usdEllipsoid, _visual, *stagePtr, this->stageDirUrl))
       {
-        ignwarn << "Failed to set material" << std::endl;
+        gzwarn << "Failed to set material" << std::endl;
       }
       break;
     }
     case gz::msgs::Geometry::SPHERE:
     {
       auto usdSphere =
-          pxr::UsdGeomSphere::Define(*stage, pxr::SdfPath(usdGeomPath));
+          pxr::UsdGeomSphere::Define(*stagePtr, pxr::SdfPath(usdGeomPath));
       double radius = geom.sphere().radius();
       usdSphere.CreateRadiusAttr().Set(radius);
       pxr::VtArray<pxr::GfVec3f> extentBounds;
       extentBounds.push_back(pxr::GfVec3f(-1.0 * radius));
       extentBounds.push_back(pxr::GfVec3f(radius));
       usdSphere.CreateExtentAttr().Set(extentBounds);
-      if (!SetMaterial(usdSphere, _visual, *stage, this->stageDirUrl))
+      if (!SetMaterial(usdSphere, _visual, *stagePtr, this->stageDirUrl))
       {
-        ignwarn << "Failed to set material" << std::endl;
+        gzwarn << "Failed to set material" << std::endl;
       }
       break;
     }
     case gz::msgs::Geometry::CAPSULE:
     {
       auto usdCapsule =
-          pxr::UsdGeomCapsule::Define(*stage, pxr::SdfPath(usdGeomPath));
+          pxr::UsdGeomCapsule::Define(*stagePtr, pxr::SdfPath(usdGeomPath));
       double radius = geom.capsule().radius();
       double length = geom.capsule().length();
       usdCapsule.CreateRadiusAttr().Set(radius);
@@ -319,31 +319,31 @@ bool Scene::Implementation::UpdateVisual(const gz::msgs::Visual &_visual,
       extentBounds.push_back(-1.0 * endPoint);
       extentBounds.push_back(endPoint);
       usdCapsule.CreateExtentAttr().Set(extentBounds);
-      if (!SetMaterial(usdCapsule, _visual, *stage, this->stageDirUrl))
+      if (!SetMaterial(usdCapsule, _visual, *stagePtr, this->stageDirUrl))
       {
-        ignwarn << "Failed to set material" << std::endl;
+        gzwarn << "Failed to set material" << std::endl;
       }
       break;
     }
     case gz::msgs::Geometry::MESH:
     {
-      auto usdMesh = UpdateMesh(geom.mesh(), usdGeomPath, *stage);
+      auto usdMesh = UpdateMesh(geom.mesh(), usdGeomPath, *stagePtr);
       if (!usdMesh)
       {
-        ignerr << "Failed to update visual [" << _visual.name() << "]"
+        gzerr << "Failed to update visual [" << _visual.name() << "]"
                << std::endl;
         return false;
       }
-      if (!SetMaterial(usdMesh, _visual, *stage, this->stageDirUrl))
+      if (!SetMaterial(usdMesh, _visual, *stagePtr, this->stageDirUrl))
       {
-        ignerr << "Failed to update visual [" << _visual.name() << "]"
+        gzerr << "Failed to update visual [" << _visual.name() << "]"
                << std::endl;
         return false;
       }
       break;
     }
     default:
-      ignerr << "Failed to update geometry (unsuported geometry type '"
+      gzerr << "Failed to update geometry (unsuported geometry type '"
              << _visual.type() << "')" << std::endl;
       return false;
   }
@@ -352,13 +352,13 @@ bool Scene::Implementation::UpdateVisual(const gz::msgs::Visual &_visual,
   // replace this code with pxr::UsdPhysicsCollisionAPI::Apply(geomPrim)
   pxr::TfToken appliedSchemaNamePhysicsCollisionAPI("PhysicsCollisionAPI");
   pxr::SdfPrimSpecHandle primSpec = pxr::SdfCreatePrimInLayer(
-          stage->GetEditTarget().GetLayer(),
+          stagePtr->GetEditTarget().GetLayer(),
           pxr::SdfPath(usdGeomPath));
   pxr::SdfTokenListOp listOpPanda;
   // Use ReplaceOperations to append in place.
   if (!listOpPanda.ReplaceOperations(pxr::SdfListOpTypeExplicit,
        0, 0, {appliedSchemaNamePhysicsCollisionAPI})) {
-     ignerr << "Error Applying schema PhysicsCollisionAPI" << '\n';
+     gzerr << "Error Applying schema PhysicsCollisionAPI" << '\n';
   }
   primSpec->SetInfo(
     pxr::UsdTokens->apiSchemas, pxr::VtValue::Take(listOpPanda));
@@ -370,7 +370,7 @@ bool Scene::Implementation::UpdateVisual(const gz::msgs::Visual &_visual,
 bool Scene::Implementation::UpdateLink(const gz::msgs::Link &_link,
                                        const std::string &_usdModelPath)
 {
-  auto stage = this->stage->Lock();
+  auto stagePtr = this->stage->Lock();
 
   std::string linkName = _link.name();
   std::string suffix = "_link";
@@ -381,7 +381,7 @@ bool Scene::Implementation::UpdateLink(const gz::msgs::Link &_link,
   }
 
   std::string usdLinkPath = _usdModelPath + "/" + _link.name();
-  auto prim = stage->GetPrimAtPath(pxr::SdfPath(usdLinkPath));
+  auto prim = stagePtr->GetPrimAtPath(pxr::SdfPath(usdLinkPath));
   if (prim)
   {
     return true;
@@ -389,14 +389,14 @@ bool Scene::Implementation::UpdateLink(const gz::msgs::Link &_link,
   else
   {
     usdLinkPath = _usdModelPath + "/" + _link.name() + suffix;
-    prim = stage->GetPrimAtPath(pxr::SdfPath(usdLinkPath));
+    prim = stagePtr->GetPrimAtPath(pxr::SdfPath(usdLinkPath));
     if (prim)
     {
       return true;
     }
   }
 
-  auto xform = pxr::UsdGeomXform::Define(*stage, pxr::SdfPath(usdLinkPath));
+  auto xform = pxr::UsdGeomXform::Define(*stagePtr, pxr::SdfPath(usdLinkPath));
   pxr::UsdGeomXformCommonAPI xformApi(xform);
 
   if (_link.has_pose())
@@ -414,7 +414,7 @@ bool Scene::Implementation::UpdateLink(const gz::msgs::Link &_link,
   {
     if (!this->UpdateVisual(visual, usdLinkPath))
     {
-      ignerr << "Failed to update link [" << _link.name() << "]" << std::endl;
+      gzerr << "Failed to update link [" << _link.name() << "]" << std::endl;
       return false;
     }
   }
@@ -424,7 +424,7 @@ bool Scene::Implementation::UpdateLink(const gz::msgs::Link &_link,
     std::string usdSensorPath = usdLinkPath + "/" + sensor.name();
     if (!this->UpdateSensors(sensor, usdSensorPath))
     {
-      ignerr << "Failed to add sensor [" << usdSensorPath << "]" << std::endl;
+      gzerr << "Failed to add sensor [" << usdSensorPath << "]" << std::endl;
       return false;
     }
   }
@@ -433,7 +433,7 @@ bool Scene::Implementation::UpdateLink(const gz::msgs::Link &_link,
   {
     if (!this->UpdateLights(light, usdLinkPath + "/" + light.name()))
     {
-      ignerr << "Failed to add light [" << usdLinkPath + "/" + light.name()
+      gzerr << "Failed to add light [" << usdLinkPath + "/" + light.name()
              << "]" << std::endl;
       return false;
     }
@@ -446,14 +446,14 @@ bool Scene::Implementation::UpdateLink(const gz::msgs::Link &_link,
 bool Scene::Implementation::UpdateJoint(
   const gz::msgs::Joint &_joint, const std::string &_modelName)
 {
-  auto stage = this->stage->Lock();
+  auto stagePtr = this->stage->Lock();
   auto jointUSD =
-      stage->GetPrimAtPath(pxr::SdfPath("/" + worldName + "/" + _joint.name()));
+      stagePtr->GetPrimAtPath(pxr::SdfPath("/" + worldName + "/" + _joint.name()));
   // TODO(ahcorde): This code is duplicated in the sdformat converter.
   if (!jointUSD)
   {
     jointUSD =
-        stage->GetPrimAtPath(
+        stagePtr->GetPrimAtPath(
           pxr::SdfPath(
             "/" + worldName + "/" + _modelName + "/" + _joint.name()));
     if (!jointUSD)
@@ -463,7 +463,7 @@ bool Scene::Implementation::UpdateJoint(
         case gz::msgs::Joint::FIXED:
         {
           pxr::TfToken usdPrimTypeName("PhysicsFixedJoint");
-          auto jointFixedUSD = stage->DefinePrim(
+          auto jointFixedUSD = stagePtr->DefinePrim(
             pxr::SdfPath("/" + this->worldName + "/" + _joint.name()),
             usdPrimTypeName);
 
@@ -492,7 +492,7 @@ bool Scene::Implementation::UpdateJoint(
           igndbg << "Creating a revolute joint" << '\n';
 
           pxr::TfToken usdPrimTypeName("PhysicsRevoluteJoint");
-          auto revoluteJointUSD = stage->DefinePrim(
+          auto revoluteJointUSD = stagePtr->DefinePrim(
             pxr::SdfPath("/" + this->worldName + "/" + _joint.name()),
             usdPrimTypeName);
 
@@ -589,7 +589,7 @@ bool Scene::Implementation::UpdateJoint(
           pxr::TfToken appliedSchemaNamePhysxArticulationAPI(
             "PhysxArticulationAPI");
           pxr::SdfPrimSpecHandle primSpecPanda = pxr::SdfCreatePrimInLayer(
-            stage->GetEditTarget().GetLayer(),
+            stagePtr->GetEditTarget().GetLayer(),
             pxr::SdfPath("/" + this->worldName + "/panda"));
           pxr::SdfTokenListOp listOpPanda;
           // Use ReplaceOperations to append in place.
@@ -599,7 +599,7 @@ bool Scene::Implementation::UpdateJoint(
             0,
             {appliedSchemaNamePhysicsArticulationRootAPI,
              appliedSchemaNamePhysxArticulationAPI})) {
-            ignerr << "Not able to setup the schema PhysxArticulationAPI "
+            gzerr << "Not able to setup the schema PhysxArticulationAPI "
                    << "and PhysicsArticulationRootAPI\n";
           }
           primSpecPanda->SetInfo(
@@ -607,14 +607,14 @@ bool Scene::Implementation::UpdateJoint(
 
           pxr::TfToken appliedSchemaName("PhysicsDriveAPI:angular");
           pxr::SdfPrimSpecHandle primSpec = pxr::SdfCreatePrimInLayer(
-            stage->GetEditTarget().GetLayer(),
+            stagePtr->GetEditTarget().GetLayer(),
             pxr::SdfPath("/" + this->worldName + "/" + _joint.name()));
           pxr::SdfTokenListOp listOp;
 
           // Use ReplaceOperations to append in place.
           if (!listOp.ReplaceOperations(pxr::SdfListOpTypeExplicit,
                   0, 0, {appliedSchemaName})) {
-            ignerr << "Not able to setup the schema PhysicsDriveAPI\n";
+            gzerr << "Not able to setup the schema PhysicsDriveAPI\n";
           }
 
           primSpec->SetInfo(
@@ -648,23 +648,23 @@ bool Scene::Implementation::UpdateJoint(
 //////////////////////////////////////////////////
 bool Scene::Implementation::UpdateModel(const gz::msgs::Model &_model)
 {
-  auto stage = this->stage->Lock();
+  auto stagePtr = this->stage->Lock();
 
   std::string modelName = _model.name();
 
   if (modelName.empty())
     return true;
 
-  auto range = pxr::UsdPrimRange::Stage(*stage);
-  for (auto const &prim : range)
+  auto range = pxr::UsdPrimRange::Stage(*stagePtr);
+  for (auto const &primRange : range)
   {
-    if (prim.GetName().GetString() == modelName)
+    if (primRange.GetName().GetString() == modelName)
     {
-      ignwarn << "The model [" << _model.name() << "] is already available"
+      gzwarn << "The model [" << _model.name() << "] is already available"
               << " in Isaac Sim" << std::endl;
 
       std::string usdModelPath = "/" + worldName + "/" + modelName;
-      auto prim = stage->GetPrimAtPath(
+      auto prim = stagePtr->GetPrimAtPath(
             pxr::SdfPath(usdModelPath));
       if (prim)
       {
@@ -681,12 +681,12 @@ bool Scene::Implementation::UpdateModel(const gz::msgs::Model &_model)
             suffix = "";
           }
           std::string usdLinkPath = usdModelPath + "/" + linkName + suffix;
-          auto linkPrim = stage->GetPrimAtPath(
+          auto linkPrim = stagePtr->GetPrimAtPath(
                 pxr::SdfPath(usdLinkPath));
           if (!linkPrim)
           {
             usdLinkPath = usdModelPath + "/" + linkName;
-            linkPrim = stage->GetPrimAtPath(
+            linkPrim = stagePtr->GetPrimAtPath(
                   pxr::SdfPath(usdLinkPath));
           }
           if (linkPrim)
@@ -697,14 +697,14 @@ bool Scene::Implementation::UpdateModel(const gz::msgs::Model &_model)
             {
               std::string visualName = visual.name();
               std::string suffix = "_visual";
-              std::size_t found = visualName.find("_visual");
+              found = visualName.find("_visual");
               if (found != std::string::npos)
               {
                 suffix = "";
               }
               std::string usdvisualPath =
                 usdLinkPath + "/" + visualName + suffix;
-              auto visualPrim = stage->GetPrimAtPath(
+              auto visualPrim = stagePtr->GetPrimAtPath(
                     pxr::SdfPath(usdvisualPath));
               if (visualPrim)
               {
@@ -715,7 +715,7 @@ bool Scene::Implementation::UpdateModel(const gz::msgs::Model &_model)
               {
                 usdvisualPath =
                   usdLinkPath + "/" + visualName;
-                visualPrim = stage->GetPrimAtPath(
+                visualPrim = stagePtr->GetPrimAtPath(
                       pxr::SdfPath(usdvisualPath));
                 if (visualPrim)
                 {
@@ -728,7 +728,7 @@ bool Scene::Implementation::UpdateModel(const gz::msgs::Model &_model)
             {
               std::string usdLightPath =
                 usdLinkPath + "/" + light.name();
-              auto lightPrim = stage->GetPrimAtPath(
+              auto lightPrim = stagePtr->GetPrimAtPath(
                     pxr::SdfPath(usdLightPath));
               if (lightPrim)
               {
@@ -748,7 +748,7 @@ bool Scene::Implementation::UpdateModel(const gz::msgs::Model &_model)
 
   this->entitiesByName[modelName] = _model.id();
 
-  auto xform = pxr::UsdGeomXform::Define(*stage, pxr::SdfPath(usdModelPath));
+  auto xform = pxr::UsdGeomXform::Define(*stagePtr, pxr::SdfPath(usdModelPath));
   pxr::UsdGeomXformCommonAPI xformApi(xform);
   if (_model.has_scale())
   {
@@ -772,7 +772,7 @@ bool Scene::Implementation::UpdateModel(const gz::msgs::Model &_model)
   {
     if (!this->UpdateLink(link, usdModelPath))
     {
-      ignerr << "Failed to update model [" << modelName << "]" << std::endl;
+      gzerr << "Failed to update model [" << modelName << "]" << std::endl;
       return false;
     }
   }
@@ -781,7 +781,7 @@ bool Scene::Implementation::UpdateModel(const gz::msgs::Model &_model)
   {
     if (!this->UpdateJoint(joint, _model.name()))
     {
-      ignerr << "Failed to update model [" << modelName << "]" << std::endl;
+      gzerr << "Failed to update model [" << modelName << "]" << std::endl;
       return false;
     }
   }
@@ -796,7 +796,7 @@ bool Scene::Implementation::UpdateScene(const gz::msgs::Scene &_scene)
   {
     if (!this->UpdateModel(model))
     {
-      ignerr << "Failed to add model [" << model.name() << "]" << std::endl;
+      gzerr << "Failed to add model [" << model.name() << "]" << std::endl;
       return false;
     }
     igndbg << "added model [" << model.name() << "]" << std::endl;
@@ -806,7 +806,7 @@ bool Scene::Implementation::UpdateScene(const gz::msgs::Scene &_scene)
   {
     if (!this->UpdateLights(light, "/" + worldName + "/" + light.name()))
     {
-      ignerr << "Failed to add light [" << light.name() << "]" << std::endl;
+      gzerr << "Failed to add light [" << light.name() << "]" << std::endl;
       return false;
     }
   }
@@ -818,13 +818,13 @@ bool Scene::Implementation::UpdateScene(const gz::msgs::Scene &_scene)
 bool Scene::Implementation::UpdateSensors(const gz::msgs::Sensor &_sensor,
                    const std::string &_usdSensorPath)
 {
-  auto stage = this->stage->Lock();
+  auto stagePtr = this->stage->Lock();
 
   // TODO(ahcorde): This code is duplicated in the USD converter (sdformat)
   if (_sensor.type() == "camera")
   {
     auto usdCamera = pxr::UsdGeomCamera::Define(
-      *stage, pxr::SdfPath(_usdSensorPath));
+      *stagePtr, pxr::SdfPath(_usdSensorPath));
 
     // TODO(ahcorde): The default value in USD is 50, but something more
     // similar to gz Gazebo is 40.
@@ -836,9 +836,9 @@ bool Scene::Implementation::UpdateSensors(const gz::msgs::Sensor &_sensor,
           static_cast<float>(_sensor.camera().far_clip())));
     usdCamera.CreateHorizontalApertureAttr().Set(
       static_cast<float>(
-        _sensor.camera().horizontal_fov() * 180.0f / IGN_PI));
+        _sensor.camera().horizontal_fov() * 180.0f / GZ_PI));
 
-    gz::math::Pose3d poseCameraYUp(0, 0, 0, IGN_PI_2, 0, -IGN_PI_2);
+    gz::math::Pose3d poseCameraYUp(0, 0, 0, GZ_PI_2, 0, -GZ_PI_2);
     gz::math::Quaterniond q(
       _sensor.pose().orientation().w(),
       _sensor.pose().orientation().x(),
@@ -849,9 +849,9 @@ bool Scene::Implementation::UpdateSensors(const gz::msgs::Sensor &_sensor,
       _sensor.pose().position().x(),
       _sensor.pose().position().y(),
       _sensor.pose().position().z(),
-      q.Roll() * 180.0 / IGN_PI,
-      q.Pitch() * 180.0 / IGN_PI,
-      q.Yaw() * 180. / IGN_PI);
+      q.Roll() * 180.0 / GZ_PI,
+      q.Pitch() * 180.0 / GZ_PI,
+      q.Yaw() * 180. / GZ_PI);
 
     poseCamera = poseCamera * poseCameraYUp;
 
@@ -865,15 +865,15 @@ bool Scene::Implementation::UpdateSensors(const gz::msgs::Sensor &_sensor,
     usdCamera.AddRotateXYZOp(pxr::UsdGeomXformOp::Precision::PrecisionDouble)
      .Set(
         pxr::GfVec3d(
-          poseCamera.Rot().Roll() * 180.0 / IGN_PI,
-          poseCamera.Rot().Pitch() * 180.0 / IGN_PI,
-          poseCamera.Rot().Yaw() * 180. / IGN_PI));
+          poseCamera.Rot().Roll() * 180.0 / GZ_PI,
+          poseCamera.Rot().Pitch() * 180.0 / GZ_PI,
+          poseCamera.Rot().Yaw() * 180. / GZ_PI));
   }
   else if (_sensor.type() == "gpu_lidar")
   {
     pxr::UsdGeomXform::Define(
-      *stage, pxr::SdfPath(_usdSensorPath));
-    auto lidarPrim = stage->GetPrimAtPath(
+      *stagePtr, pxr::SdfPath(_usdSensorPath));
+    auto lidarPrim = stagePtr->GetPrimAtPath(
           pxr::SdfPath(_usdSensorPath));
     lidarPrim.SetTypeName(pxr::TfToken("Lidar"));
 
@@ -888,12 +888,12 @@ bool Scene::Implementation::UpdateSensors(const gz::msgs::Sensor &_sensor,
     // TODO(adlarkin) double check if these FOV calculations are correct
     lidarPrim.CreateAttribute(pxr::TfToken("horizontalFov"),
         pxr::SdfValueTypeNames->Float, false).Set(
-          static_cast<float>(horizontalFov * 180.0f / IGN_PI));
+          static_cast<float>(horizontalFov * 180.0f / GZ_PI));
     const auto verticalFov = _sensor.lidar().vertical_max_angle() -
       _sensor.lidar().vertical_min_angle();
     lidarPrim.CreateAttribute(pxr::TfToken("verticalFov"),
         pxr::SdfValueTypeNames->Float, false).Set(
-          static_cast<float>(verticalFov * 180.0f / IGN_PI));
+          static_cast<float>(verticalFov * 180.0f / GZ_PI));
     lidarPrim.CreateAttribute(pxr::TfToken("horizontalResolution"),
         pxr::SdfValueTypeNames->Float, false).Set(
           static_cast<float>(_sensor.lidar().horizontal_resolution()));
@@ -903,7 +903,7 @@ bool Scene::Implementation::UpdateSensors(const gz::msgs::Sensor &_sensor,
   }
   else
   {
-    ignwarn << "This kind of sensor [" << _sensor.type()
+    gzwarn << "This kind of sensor [" << _sensor.type()
             << "] is not supported" << std::endl;
     return true;
   }
@@ -915,14 +915,14 @@ bool Scene::Implementation::UpdateLights(const gz::msgs::Light &_light,
 {
   // TODO: We can probably re-use code from sdformat
 
-  auto stage = this->stage->Lock();
+  auto stagePtr = this->stage->Lock();
 
   const pxr::SdfPath sdfLightPath(_usdLightPath);
   switch (_light.type())
   {
     case gz::msgs::Light::POINT:
     {
-      auto pointLight = pxr::UsdLuxSphereLight::Define(*stage, sdfLightPath);
+      auto pointLight = pxr::UsdLuxSphereLight::Define(*stagePtr, sdfLightPath);
       pointLight.CreateTreatAsPointAttr().Set(true);
       this->entities[_light.id()] = pointLight.GetPrim();
       this->entitiesByName[pointLight.GetPrim().GetName()] = _light.id();
@@ -933,7 +933,7 @@ bool Scene::Implementation::UpdateLights(const gz::msgs::Light &_light,
     }
     case gz::msgs::Light::SPOT:
     {
-      auto diskLight = pxr::UsdLuxDiskLight::Define(*stage, sdfLightPath);
+      auto diskLight = pxr::UsdLuxDiskLight::Define(*stagePtr, sdfLightPath);
       this->entities[_light.id()] = diskLight.GetPrim();
       this->entitiesByName[diskLight.GetPrim().GetName()] = _light.id();
       diskLight.CreateColorAttr(pxr::VtValue(pxr::GfVec3f(
@@ -943,7 +943,7 @@ bool Scene::Implementation::UpdateLights(const gz::msgs::Light &_light,
     case gz::msgs::Light::DIRECTIONAL:
     {
       auto directionalLight =
-          pxr::UsdLuxDistantLight::Define(*stage, sdfLightPath);
+          pxr::UsdLuxDistantLight::Define(*stagePtr, sdfLightPath);
       this->entities[_light.id()] = directionalLight.GetPrim();
       this->entitiesByName[directionalLight.GetPrim().GetName()] = _light.id();
       directionalLight.CreateColorAttr(pxr::VtValue(pxr::GfVec3f(
@@ -960,7 +960,7 @@ bool Scene::Implementation::UpdateLights(const gz::msgs::Light &_light,
   // intensity are set to provide flexibility with other USD renderers
   const float usdLightIntensity =
       static_cast<float>(_light.intensity()) * 1000.0f;
-  auto lightPrim = stage->GetPrimAtPath(sdfLightPath);
+  auto lightPrim = stagePtr->GetPrimAtPath(sdfLightPath);
   lightPrim
       .CreateAttribute(pxr::TfToken("intensity"), pxr::SdfValueTypeNames->Float,
                        false)
@@ -979,7 +979,7 @@ bool Scene::Init()
           "/world/" + this->dataPtr->worldName + "/scene/info", req, 5000,
           ignScene, result))
   {
-    ignwarn << "Error requesting scene info, make sure the world ["
+    gzwarn << "Error requesting scene info, make sure the world ["
             << this->dataPtr->worldName
             << "] is available, gz-omniverse will keep trying..."
             << std::endl;
@@ -987,13 +987,13 @@ bool Scene::Init()
             "/world/" + this->dataPtr->worldName + "/scene/info", req, -1,
             ignScene, result))
     {
-      ignerr << "Error request scene info" << std::endl;
+      gzerr << "Error request scene info" << std::endl;
       return false;
     }
   }
   if (!this->dataPtr->UpdateScene(ignScene))
   {
-    ignerr << "Failed to init scene" << std::endl;
+    gzerr << "Failed to init scene" << std::endl;
     return false;
   }
 
@@ -1007,12 +1007,12 @@ bool Scene::Init()
       if (!this->dataPtr->node.Subscribe(
         topic, &Scene::Implementation::CallbackJoint, this->dataPtr.get()))
       {
-        ignerr << "Error subscribing to topic [" << topic << "]" << std::endl;
+        gzerr << "Error subscribing to topic [" << topic << "]" << std::endl;
         return false;
       }
       else
       {
-        ignmsg << "Subscribed to topic: [joint_state]" << std::endl;
+        gzmsg << "Subscribed to topic: [joint_state]" << std::endl;
       }
     }
   }
@@ -1022,24 +1022,24 @@ bool Scene::Init()
   if (!this->dataPtr->node.Subscribe(
           topic, &Scene::Implementation::CallbackPoses, this->dataPtr.get()))
   {
-    ignerr << "Error subscribing to topic [" << topic << "]" << std::endl;
+    gzerr << "Error subscribing to topic [" << topic << "]" << std::endl;
     return false;
   }
   else
   {
-    ignmsg << "Subscribed to topic: [" << topic << "]" << std::endl;
+    gzmsg << "Subscribed to topic: [" << topic << "]" << std::endl;
   }
 
   topic = "/world/" + this->dataPtr->worldName + "/scene/info";
   if (!this->dataPtr->node.Subscribe(
           topic, &Scene::Implementation::CallbackScene, this->dataPtr.get()))
   {
-    ignerr << "Error subscribing to topic [" << topic << "]" << std::endl;
+    gzerr << "Error subscribing to topic [" << topic << "]" << std::endl;
     return false;
   }
   else
   {
-    ignmsg << "Subscribed to topic: [" << topic << "]" << std::endl;
+    gzmsg << "Subscribed to topic: [" << topic << "]" << std::endl;
   }
 
   topic = "/world/" + this->dataPtr->worldName + "/scene/deletion";
@@ -1047,12 +1047,12 @@ bool Scene::Init()
           topic, &Scene::Implementation::CallbackSceneDeletion,
           this->dataPtr.get()))
   {
-    ignerr << "Error subscribing to topic [" << topic << "]" << std::endl;
+    gzerr << "Error subscribing to topic [" << topic << "]" << std::endl;
     return false;
   }
   else
   {
-    ignmsg << "Subscribed to topic: [" << topic << "]" << std::endl;
+    gzmsg << "Subscribed to topic: [" << topic << "]" << std::endl;
   }
 
   this->dataPtr->USDLayerNoticeListener =
@@ -1089,7 +1089,7 @@ void Scene::Implementation::CallbackPoses(const gz::msgs::Pose_V &_msg)
   {
     try
     {
-      auto stage = this->stage->Lock();
+      auto stagePtr = this->stage->Lock();
       const auto &prim = this->entities.at(poseMsg.id());
       if (prim)
       {
@@ -1098,7 +1098,7 @@ void Scene::Implementation::CallbackPoses(const gz::msgs::Pose_V &_msg)
     }
     catch (const std::out_of_range &)
     {
-      ignwarn << "Error updating pose, cannot find [" << poseMsg.name() << " - " << poseMsg.id() << "]"
+      gzwarn << "Error updating pose, cannot find [" << poseMsg.name() << " - " << poseMsg.id() << "]"
               << std::endl;
     }
   }
@@ -1113,7 +1113,7 @@ void Scene::Implementation::CallbackJoint(const gz::msgs::Model &_msg)
   {
     if (!this->UpdateJoint(joint, _msg.name()))
     {
-      ignerr << "Failed to update model [" << _msg.name() << "]" << std::endl;
+      gzerr << "Failed to update model [" << _msg.name() << "]" << std::endl;
       return;
     }
   }
@@ -1133,17 +1133,17 @@ void Scene::Implementation::CallbackSceneDeletion(
   {
     try
     {
-      auto stage = this->stage->Lock();
+      auto stagePtr = this->stage->Lock();
       const auto &prim = this->entities.at(id);
       std::string primName = prim.GetName();
-      stage->RemovePrim(prim.GetPath());
-      ignmsg << "Removed [" << prim.GetPath() << "]" << std::endl;
+      stagePtr->RemovePrim(prim.GetPath());
+      gzmsg << "Removed [" << prim.GetPath() << "]" << std::endl;
       this->entities.erase(id);
       this->entitiesByName.erase(primName);
     }
     catch (const std::out_of_range &)
     {
-      ignwarn << "Failed to delete [" << id << "] (Unable to find node)"
+      gzwarn << "Failed to delete [" << id << "] (Unable to find node)"
               << std::endl;
     }
   }

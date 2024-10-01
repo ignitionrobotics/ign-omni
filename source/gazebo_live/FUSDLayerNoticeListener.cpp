@@ -44,9 +44,9 @@ FUSDLayerNoticeListener::FUSDLayerNoticeListener(
 }
 
 void FUSDLayerNoticeListener::HandleGlobalLayerReload(
-  const pxr::SdfNotice::LayerDidReloadContent& n)
+  const pxr::SdfNotice::LayerDidReloadContent& /*n*/)
 {
-  igndbg << "HandleGlobalLayerReload called" << std::endl;
+  gzdbg << "HandleGlobalLayerReload called" << std::endl;
 }
 
 // Print some interesting info about the LayerNotice
@@ -75,21 +75,21 @@ void FUSDLayerNoticeListener::HandleRootOrSubLayerChange(
       {
         if (rep.data())
         {
-          igndbg << "Model was removed [" << sdfPath.GetName() << "]"
+          gzdbg << "Model was removed [" << sdfPath.GetName() << "]"
                  << std::endl;
           this->dataPtr->stage->Lock()->RemovePrim(sdfPath);
         }
         else
         {
-          ignerr << "Error model was not removed [" << sdfPath.GetName()
+          gzerr << "Error model was not removed [" << sdfPath.GetName()
                  << "]" << std::endl;
         }
       }
-      ignmsg << "Deleted " << sdfPath.GetName() << std::endl;
+      gzmsg << "Deleted " << sdfPath.GetName() << std::endl;
     }
     else if (changeEntry.second.flags.didAddNonInertPrim)
     {
-      ignmsg << "Added" << sdfPath.GetName() << std::endl;
+      gzmsg << "Added" << sdfPath.GetName() << std::endl;
     }
   }
 }

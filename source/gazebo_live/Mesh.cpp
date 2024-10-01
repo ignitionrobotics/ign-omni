@@ -71,7 +71,7 @@ pxr::UsdGeomMesh UpdateMesh(const gz::msgs::MeshGeom &_meshMsg,
       home, ".gz", "fuel", server, owner, type, modelName, modelVersion);
     systemPaths->AddFilePaths(fullname);
 
-    for (int i = 7; i < tokens.size(); i++)
+    for (unsigned int i = 7; i < tokens.size(); i++)
     {
       fullname = gz::common::joinPaths(
         fullname, gz::common::lowercase(tokens[i]));

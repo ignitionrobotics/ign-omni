@@ -70,7 +70,7 @@ workspace "Samples"
     cppdialect "C++17"
 
     filter { "system:linux" }
-        buildoptions {"-D_MSC_VER=0 -D_GLIBCXX_USE_CXX11_ABI=0 -Wno-deprecated-declarations -Wno-deprecated -Wno-unused-variable -pthread -lstdc++fs"}
+        buildoptions {"-D_GLIBCXX_USE_CXX11_ABI=0 -Wno-deprecated-declarations -Wno-deprecated -Wno-unused-variable -pthread -lstdc++fs -Wno-error=switch -Wno-error=shadow -Wno-error=sign-compare"}
     filter {}
 
 
