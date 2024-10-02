@@ -42,14 +42,14 @@ void findOrCreateSession(omni::connect::core::LiveSession* liveSession)
 {
     pxr::UsdStageRefPtr liveStage;
     omni::connect::core::LiveSessionInfo::SessionNames sessionList = liveSession->getInfo()->getSessionNames();
-    OMNI_LOG_INFO("Select or create a Live Session:");
+    // OMNI_LOG_INFO("Select or create a Live Session:");
     for (size_t i = 0; i < sessionList.size(); i++)
     {
-        OMNI_LOG_INFO(" [%d] %s", (int)i, sessionList[i].c_str());
+        // OMNI_LOG_INFO(" [%d] %s", (int)i, sessionList[i].c_str());
     }
-    OMNI_LOG_INFO(" [n] Create a new session");
-    OMNI_LOG_INFO(" [q] Quit");
-    OMNI_LOG_INFO("Select a live session to join:");
+    // OMNI_LOG_INFO(" [n] Create a new session");
+    // OMNI_LOG_INFO(" [q] Quit");
+    // OMNI_LOG_INFO("Select a live session to join:");
 
     char selection;
     std::cin >> selection;
@@ -64,12 +64,12 @@ void findOrCreateSession(omni::connect::core::LiveSession* liveSession)
     else if ('n' == selection)
     {
         // Get a new session name
-        OMNI_LOG_INFO("Enter the new session name: ");
+        // OMNI_LOG_INFO("Enter the new session name: ");
         std::cin >> sessionName;
     }
     else
     {
-        OMNI_LOG_INFO("Exiting");
+        // OMNI_LOG_INFO("Exiting");
         exit(0);
     }
 
@@ -77,12 +77,12 @@ void findOrCreateSession(omni::connect::core::LiveSession* liveSession)
     pxr::SdfLayerHandle liveLayer = liveSession->join(sessionName);
     if (!liveLayer)
     {
-        OMNI_LOG_ERROR("Failed to join live session: %s", sessionName.c_str());
+        // OMNI_LOG_ERROR("Failed to join live session: %s", sessionName.c_str());
         exit(1);
     }
     else
     {
-        OMNI_LOG_INFO("Successfully joined session: %s", sessionName.c_str());
+        // OMNI_LOG_INFO("Successfully joined session: %s", sessionName.c_str());
     }
 }
 
@@ -145,7 +145,7 @@ int main(int argc, char* argv[])
     pxr::UsdStageRefPtr stage = pxr::UsdStage::Open(stageUrl);
     if (!stage)
     {
-        OMNI_LOG_FATAL("Failure to open stage in Omniverse: %s", stageUrl.c_str());
+      //  OMNI_LOG_FATAL("Failure to open stage in Omniverse: %s", stageUrl.c_str());
         exit(1);
     }
 
@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
     std::shared_ptr<omni::connect::core::LiveSession> liveSession = omni::connect::core::LiveSession::create(stage);
     if (!liveSession)
     {
-        OMNI_LOG_ERROR("Failure to create a live session for stage: %s", stageUrl.c_str());
+      //  OMNI_LOG_ERROR("Failure to create a live session for stage: %s", stageUrl.c_str());
         exit(1);
     }
     findOrCreateSession(liveSession.get());

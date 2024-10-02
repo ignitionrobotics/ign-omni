@@ -22,10 +22,11 @@ function sample(projectName, sourceFolder)
     
     local gazeboInstallDir = "../../install"
 
-    buildoptions {"-Wno-deprecated-declarations -Wno-deprecated -Wno-unused-variable -pthread -lstdc++fs -Wno-error=switch -Wno-error=shadow -Wno-error=sign-compare -Wno-error=unused-parameter -Wno-error=unused-function"}
+    buildoptions {"-D_GLIBCXX_USE_CXX11_ABI=0 -Wno-deprecated-declarations -Wno-deprecated -Wno-unused-variable -pthread -lstdc++fs -Wno-error=switch -Wno-error=shadow -Wno-error=sign-compare -Wno-error=unused-parameter -Wno-error=unused-function"}
     
     includedirs {
         "source/common/include",
+        gazeboInstallDir.."/include",
         -- include gazebo libraries
         gazeboInstallDir.."/include/**",
     }
@@ -61,10 +62,11 @@ function sample(projectName, sourceFolder)
             debugenvs "CARB_APP_PATH=$(ProjectDir)..\\..\\..\\_build\\windows-x86_64\\release"
         filter {}
     filter { "system:linux" }
+        -- linkoptions{ "-L" }
         -- link gazebo libraries
         libdirs { gazeboInstallDir.."/lib" }
         links {
-            "pthread", "stdc++fs", "protobuf", "protoc",
+            "pthread", "stdc++fs", "protobuf", "protoc", "gz-transport13", "gz-msgs10", "gz-common5", "sdformat14", "carb", "gz-math7", "gz-common5-graphics"
         }
     filter {}
 
