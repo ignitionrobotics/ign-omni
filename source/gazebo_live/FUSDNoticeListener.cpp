@@ -192,7 +192,7 @@ void FUSDNoticeListener::Handle(
 
   for (const pxr::SdfPath &objectsChanged : ObjectsChanged.GetResyncedPaths())
   {
-    ignmsg << "Resynced Path: " << objectsChanged.GetText() << std::endl;
+    std::cout << "Resynced Path: " << objectsChanged.GetText() << std::endl;
     auto modelUSD = stage->GetPrimAtPath(objectsChanged);
     std::string primName = modelUSD.GetName();
 

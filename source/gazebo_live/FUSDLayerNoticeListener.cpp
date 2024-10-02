@@ -46,7 +46,7 @@ FUSDLayerNoticeListener::FUSDLayerNoticeListener(
 void FUSDLayerNoticeListener::HandleGlobalLayerReload(
   const pxr::SdfNotice::LayerDidReloadContent& /*n*/)
 {
-  gzdbg << "HandleGlobalLayerReload called" << std::endl;
+  std::cout << "HandleGlobalLayerReload called" << std::endl;
 }
 
 // Print some interesting info about the LayerNotice
@@ -75,21 +75,21 @@ void FUSDLayerNoticeListener::HandleRootOrSubLayerChange(
       {
         if (rep.data())
         {
-          gzdbg << "Model was removed [" << sdfPath.GetName() << "]"
+          std::cout << "Model was removed [" << sdfPath.GetName() << "]"
                  << std::endl;
           this->dataPtr->stage->Lock()->RemovePrim(sdfPath);
         }
         else
         {
-          gzerr << "Error model was not removed [" << sdfPath.GetName()
+          std::cerr << "Error model was not removed [" << sdfPath.GetName()
                  << "]" << std::endl;
         }
       }
-      gzmsg << "Deleted " << sdfPath.GetName() << std::endl;
+      std::cout << "Deleted " << sdfPath.GetName() << std::endl;
     }
     else if (changeEntry.second.flags.didAddNonInertPrim)
     {
-      gzmsg << "Added" << sdfPath.GetName() << std::endl;
+      std::cout << "Added" << sdfPath.GetName() << std::endl;
     }
   }
 }

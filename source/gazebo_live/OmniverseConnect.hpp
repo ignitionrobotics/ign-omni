@@ -22,8 +22,12 @@
 
 #include <pxr/usd/usd/stage.h>
 
+#include <omni/connect/core/Core.h>
+#include <omni/connect/core/LiveSession.h>
+
+
 #include <OmniClient.h>
-//#include <OmniClientLive.h>
+#include <OmniUsdResolver.h>
 
 #include <string>
 
